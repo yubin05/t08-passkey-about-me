@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>김유빈 · 한 페이지 소개</title>
+<style>
+  :root{
+    --bg:#fafafa;
+    --surface:#ffffff;
+    --text:#1a1a1a;
+    --muted:#4b4b4b;
+    --accent:#0b5fff;
+    --accent-contrast:#ffffff;
+    --border:#e2e2e2;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.55;
+  }
+  img{max-width:100%;}
+
+  /* skip link: 키보드 사용자를 위한 본문 바로가기 */
+  .skip-link{
+    position:absolute;
+    left:-999px;
+    top:auto;
+    background:var(--accent);
+    color:var(--accent-contrast);
+    padding:10px 16px;
+    border-radius:8px;
+    z-index:100;
+  }
+  .skip-link:focus{
+    left:16px;
+    top:16px;
+  }
+
+  header.hero{
+    padding:32px 20px 24px;
+    max-width:860px;
+    margin:0 auto;
+  }
+  header.hero h1{
+    font-size:clamp(1.6rem,4vw,2.2rem);
+    margin:0 0 8px;
+  }
+  header.hero p.purpose{
+    margin:0 0 20px;
+    color:var(--muted);
+    font-size:1.05rem;
+    max-width:60ch;
+  }
+
+  .highlight-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .highlight-card{
+    flex:1 1 220px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:14px 16px;
+  }
+  .highlight-card h2{
+    font-size:0.95rem;
+    margin:0 0 6px;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .highlight-card p{
+    margin:0;
+    font-size:1rem;
+  }
+  .highlight-card a{
+    color:var(--accent);
+    font-weight:600;
+  }
+
+  main{
+    max-width:860px;
+    margin:0 auto;
+    padding:8px 20px 60px;
+  }
+
+  section{
+    margin-top:40px;
+  }
+  section > h2{
+    font-size:1.3rem;
+    margin:0 0 14px;
+    border-bottom:2px solid var(--border);
+    padding-bottom:8px;
+  }
+
+  .scope-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  @media (max-width:520px){
+    .scope-grid{grid-template-columns:1fr;}
+  }
+  .scope-box{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px 18px;
+  }
+  .scope-box h3{
+    font-size:1rem;
+    margin:0 0 10px;
+  }
+  .scope-box ul{
+    margin:0;
+    padding-left:20px;
+  }
+  .scope-box li{
+    margin-bottom:6px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:18px;
+  }
+  .card h3{
+    margin:0 0 10px;
+    font-size:1.1rem;
+  }
+  .sar{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin:12px 0;
+  }
+  @media (max-width:640px){
+    .sar{grid-template-columns:1fr;}
+  }
+  .sar div{
+    background:var(--bg);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px 12px;
+  }
+  .sar dt{
+    font-size:0.8rem;
+    color:var(--muted);
+    font-weight:600;
+    margin-bottom:4px;
+  }
+  .sar dd{
+    margin:0;
+    font-size:0.95rem;
+  }
+  .evidence-link{
+    display:inline-block;
+    margin-top:6px;
+    color:var(--accent);
+    font-weight:600;
+  }
+
+  /* 접근 가능한 상호작용: 근거 더 보기 토글 */
+  .toggle-btn{
+    font:inherit;
+    background:var(--accent);
+    color:var(--accent-contrast);
+    border:none;
+    border-radius:8px;
+    padding:8px 14px;
+    cursor:pointer;
+    margin-top:10px;
+  }
+  .toggle-btn:hover{
+    filter:brightness(1.08);
+  }
+  .detail-panel{
+    overflow:hidden;
+    max-height:0;
+    transition:max-height 0.25s ease;
+  }
+  .detail-panel[data-open="true"]{
+    max-height:240px;
+  }
+  .detail-panel .inner{
+    padding-top:12px;
+  }
+  @media (prefers-reduced-motion:reduce){
+    .detail-panel{
+      transition:none;
+    }
+  }
+
+  a:focus-visible,
+  button:focus-visible{
+    outline:3px solid var(--accent);
+    outline-offset:2px;
+  }
+
+  footer{
+    max-width:860px;
+    margin:0 auto;
+    padding:24px 20px 48px;
+    color:var(--muted);
+    font-size:0.9rem;
+    border-top:1px solid var(--border);
+  }
+  footer a{color:var(--accent);}
+
+  /* ---------- T08: 공개/비공개 경계와 패스키 자리 ---------- */
+  .zone-wrap{max-width:860px;margin:0 auto;padding:0 20px 60px;}
+  .zone-divider{
+    display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;
+    margin:8px 0 20px;padding:10px 14px;
+    border-top:3px dashed #b45309;border-bottom:3px dashed #b45309;
+    background:#fff7ed;color:#7c2d12;font-weight:600;font-size:0.95rem;
+  }
+  .private-zone{
+    background:#1f2430;color:#f3f4f6;border-radius:var(--radius);
+    padding:22px 20px;margin-top:0;
+  }
+  .private-zone h2{border-bottom-color:#3a4150 !important;color:#fff;}
+  .private-zone h3{margin:22px 0 10px;font-size:1.05rem;color:#fff;}
+  .private-zone p{color:#d1d5db;}
+  .private-zone label{display:block;font-size:0.9rem;margin:10px 0 4px;color:#e5e7eb;}
+  .private-zone input,.private-zone textarea{
+    width:100%;padding:9px 11px;border-radius:8px;border:1px solid #4b5563;
+    background:#111827;color:#f9fafb;font:inherit;
+  }
+  .private-zone button{
+    margin-top:12px;padding:9px 16px;border-radius:8px;border:0;cursor:pointer;
+    background:#60a5fa;color:#0b1220;font-weight:700;font:inherit;font-weight:700;
+  }
+  .private-zone button.secondary{background:#374151;color:#f9fafb;}
+  .private-zone button.danger{background:#f87171;color:#1f0a0a;}
+  .private-zone button:focus-visible,.private-zone input:focus-visible,.private-zone textarea:focus-visible{outline:3px solid #fbbf24;outline-offset:2px;}
+  .pk-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:620px){.pk-grid{grid-template-columns:1fr;}}
+  .pk-card{background:#111827;border:1px solid #374151;border-radius:12px;padding:14px 16px;}
+  .pk-list{list-style:none;padding:0;margin:0;}
+  .pk-list li{background:#111827;border:1px solid #374151;border-radius:10px;padding:10px 12px;margin-bottom:8px;
+    display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;}
+  .pk-list li button{margin-top:0;}
+  .pk-meta{font-size:0.85rem;color:#9ca3af;}
+  .pk-status{min-height:1.4em;margin:6px 0 0;font-weight:600;}
+  .pk-status.error{color:#fca5a5;}
+  .pk-status.ok{color:#86efac;}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">본문 바로가기</a>
+
+<header class="hero">
+  <h1>안녕하세요, 김유빈입니다</h1>
+  <p class="purpose">
+    이 페이지는 <strong>클라우드/DevOps 채용 담당자와 팀 동료</strong>에게
+    <strong>제가 문제를 어떻게 진단하고 해결해왔는지, 무엇을 만들어왔는지</strong>를 보여주기 위한 한 페이지입니다.
+  </p>
+
+  <div class="highlight-row" aria-label="한눈에 보는 핵심 요약">
+    <div class="highlight-card">
+      <h2>소개</h2>
+      <p>게임 클라이언트 개발자로 시작해, 지금은 AWS·Azure 인프라와 DevOps를 다루는 엔지니어로 성장 중입니다.</p>
+    </div>
+    <div class="highlight-card">
+      <h2>대표 활동</h2>
+      <p>4인 팀 리드로 AWS-Azure 멀티클라우드 DR 기반 무중단 숙박 예약 플랫폼을 설계·구축했습니다.</p>
+    </div>
+    <div class="highlight-card">
+      <h2>근거</h2>
+      <p><a href="https://github.com/yubin05/Project_TEAM_AWS" target="_blank" rel="noopener">공개 저장소에서 확인하기 →</a></p>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <section aria-labelledby="scope-h">
+    <h2 id="scope-h">공개 범위</h2>
+    <div class="scope-grid">
+      <div class="scope-box">
+        <h3>공개하는 정보</h3>
+        <ul>
+          <li>이름(김유빈)과 진행한 프로젝트 이름</li>
+          <li>강점을 보여주는 상황·행동·결과 3가지</li>
+          <li>공개 GitHub 저장소 링크</li>
+        </ul>
+      </div>
+      <div class="scope-box">
+        <h3>공개하지 않는 정보</h3>
+        <ul>
+          <li>전화번호, 이메일, 자택 주소, 생년월일</li>
+          <li>전 직장(㈜나디아소프트·진원 스튜디오)의 내부 자료·비공개 코드</li>
+          <li>팀원 등 타인의 개인정보가 포함된 자료</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="strengths-h">
+    <h2 id="strengths-h">강점과 근거</h2>
+
+    <article class="card">
+      <h3>강점 1 — 근본 원인을 끝까지 추적하는 트러블슈팅</h3>
+      <dl class="sar">
+        <div>
+          <dt>상황</dt>
+          <dd>DR 프로젝트에서 Site-to-Site VPN 터널 연결이 계속 실패함</dd>
+        </div>
+        <div>
+          <dt>행동</dt>
+          <dd>CloudWatch 로그를 분석해 StrongSwan IKE 협상 방식이 Azure VPN Gateway와 호환되지 않음을 특정하고, LibreSwan으로 교체 후 Azure 호환 방식으로 재구성</dd>
+        </div>
+        <div>
+          <dt>결과</dt>
+          <dd>VPN 터널 연결이 안정화됐고, 이후 장애 발생 시 로그·근본 원인부터 확인하는 습관이 생김</dd>
+        </div>
+      </dl>
+      <a class="evidence-link" href="https://github.com/yubin05/Project_TEAM_AWS" target="_blank" rel="noopener">관련 근거 보기 →</a>
+    </article>
+
+    <article class="card">
+      <h3>강점 2 — 사전 합의로 협업 비용을 줄이는 팀 리딩</h3>
+      <dl class="sar">
+        <div>
+          <dt>상황</dt>
+          <dd>4인 팀 프로젝트에서 팀장으로 인프라 가동·중단 시점과 회의 일정을 조율해야 함</dd>
+        </div>
+        <div>
+          <dt>행동</dt>
+          <dd>인프라 가동 시간을 팀원들과 미리 합의해 필요한 시간에만 가동하고, 회의는 사전 공지 후 회의록으로 공유. Terraform 리소스도 IAM·보안그룹·로그그룹 단위로 모듈화해 가독성을 높임</dd>
+        </div>
+        <div>
+          <dt>결과</dt>
+          <dd>불필요한 소통 비용이 줄었고, 팀원 피드백이 반영된 정리된 인프라 구조를 완성함</dd>
+        </div>
+      </dl>
+      <a class="evidence-link" href="https://github.com/yubin05/Project_TEAM_AWS" target="_blank" rel="noopener">관련 근거 보기 →</a>
+    </article>
+
+    <article class="card">
+      <h3>강점 3 — 단계적으로 새 기술을 익히는 학습력</h3>
+      <dl class="sar">
+        <div>
+          <dt>상황</dt>
+          <dd>게임 클라이언트 개발자에서 클라우드/DevOps 엔지니어로 직무를 전환하기로 함</dd>
+        </div>
+        <div>
+          <dt>행동</dt>
+          <dd>네트워크 기초(개인 프로젝트) → AWS 클라우드 실전(팀 프로젝트) → Kubernetes 심화(EKS 개인 프로젝트) 순으로 스스로 학습 단계를 설계하고, 매 단계 Terraform·GitHub Actions·ArgoCD를 직접 적용</dd>
+        </div>
+        <div>
+          <dt>결과</dt>
+          <dd>AWS Certified Solutions Architect - Associate 자격을 취득하고, EKS 컨테이너 오케스트레이션 개인 프로젝트를 완주함</dd>
+        </div>
+      </dl>
+
+      <button type="button" class="toggle-btn" id="toggle-btn" aria-expanded="false" aria-controls="detail-panel">
+        근거 더 보기
+      </button>
+      <div class="detail-panel" id="detail-panel" data-open="false">
+        <div class="inner">
+          <p>AWS-Azure 멀티클라우드 DR 프로젝트와 AWS EKS 개인 프로젝트 코드는 아래 저장소에서 확인할 수 있습니다.</p>
+          <a class="evidence-link" href="https://github.com/yubin05/Project_TEAM_AWS" target="_blank" rel="noopener">관련 근거 보기 →</a>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+</main>
+
+<!-- T08: 여기부터 비공개 영역. 이 HTML에는 비공개 내용이 들어 있지 않고, 패스키 로그인 뒤 서버(/api/private)에서만 받아온다. -->
+<div class="zone-wrap">
+  <div class="zone-divider" role="note">
+    <span>▲ 여기까지 공개 영역 — 누구나 볼 수 있음</span>
+    <span>▼ 여기부터 비공개 영역 — 패스키로 들어간 본인만</span>
+  </div>
+
+  <section id="private-zone" class="private-zone" aria-labelledby="private-h">
+    <h2 id="private-h">🔒 나만 보는 자리</h2>
+    <p class="pk-status" id="pk-status" role="status" aria-live="polite"></p>
+
+    <div id="pk-locked">
+      <p>비밀번호는 없습니다. 이 기기(또는 비밀번호 관리자)에 저장된 <strong>패스키</strong>로만 들어올 수 있습니다.</p>
+      <div class="pk-grid">
+        <div class="pk-card">
+          <h3>패스키로 들어가기</h3>
+          <p>이미 만든 계정이 있으면 누르세요. 별명을 입력할 필요가 없습니다.</p>
+          <button type="button" id="pk-login-btn">패스키로 로그인</button>
+        </div>
+        <form class="pk-card" id="pk-register-form">
+          <h3>처음이면 계정 만들기</h3>
+          <label for="pk-username">별명 (2~30자, 실명 말고 아무 이름)</label>
+          <input id="pk-username" autocomplete="username webauthn" required minlength="2" maxlength="30">
+          <label for="pk-reg-name">이 패스키 이름 (예: 내 노트북 크롬)</label>
+          <input id="pk-reg-name" maxlength="40" placeholder="내 패스키">
+          <button type="submit">패스키 만들고 계정 생성</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="pk-unlocked" hidden>
+      <p><strong id="pk-who"></strong> 님으로 들어왔습니다. <button type="button" class="secondary" id="pk-logout-btn">로그아웃</button></p>
+
+      <h3>비공개 메모 (<span id="pk-item-count">0</span>개)</h3>
+      <ul class="pk-list" id="pk-items"></ul>
+      <form id="pk-item-form">
+        <label for="pk-item-title">제목</label>
+        <input id="pk-item-title" required maxlength="80" placeholder="예: 준비 중인 프로젝트 메모">
+        <label for="pk-item-body">내용 (만들어 넣은 내용만 — 실제 연락처·신분증 번호 금지)</label>
+        <textarea id="pk-item-body" rows="3" maxlength="1000"></textarea>
+        <button type="submit">메모 추가</button>
+      </form>
+
+      <h3>내 패스키 (<span id="pk-key-count">0</span>개)</h3>
+      <p>기기를 잃어버릴 때를 대비해 두 개 이상 등록해 두세요. 마지막 하나는 지울 수 없습니다.</p>
+      <ul class="pk-list" id="pk-keys"></ul>
+      <form id="pk-add-form">
+        <label for="pk-add-name">새 패스키 이름 (예: 휴대폰, 다른 브라우저)</label>
+        <input id="pk-add-name" maxlength="40" placeholder="추가 패스키">
+        <button type="submit">패스키 하나 더 등록</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <p>
+    프로필: <a href="https://github.com/yubin05" target="_blank" rel="noopener">github.com/yubin05</a> ·
+    소스 코드: <a href="https://github.com/yubin05/Project_TEAM_AWS" target="_blank" rel="noopener">GitHub</a>
+  </p>
+</footer>
+
+<script>
+  (function(){
+    var btn = document.getElementById('toggle-btn');
+    var panel = document.getElementById('detail-panel');
+    if(!btn || !panel) return;
+
+    btn.addEventListener('click', function(){
+      var isOpen = panel.getAttribute('data-open') === 'true';
+      var next = !isOpen;
+      panel.setAttribute('data-open', String(next));
+      btn.setAttribute('aria-expanded', String(next));
+      btn.textContent = next ? '근거 접기' : '근거 더 보기';
+    });
+  })();
+</script>
+<script src="/passkey.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "t08-passkey-about-me",
+  "private": true,
+  "description": "T08: T01 소개 페이지 + 패스키로만 열리는 비공개 자리 (의존성 없음, Web Crypto 직접 구현)",
+  "scripts": {
+    "dev": "npx wrangler dev --local",
+    "test": "node test/passkey-check.mjs"
+  }
+}

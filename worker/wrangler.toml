@@ -1,0 +1,12 @@
+name = "t08-passkey-about-me"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+[assets]
+directory = "./public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "t08-passkey-about-me-db"
+database_id = "5dd7d05f-da07-4069-8511-8dcd1df5ef12"
+migrations_dir = "migrations"
